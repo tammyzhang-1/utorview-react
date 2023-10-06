@@ -1,0 +1,19 @@
+.controls {
+  padding: 1em;
+  display: flex;
+  gap: 1em;
+}
+
+.select {
+  display: flex;
+  gap: 0.5em;
+}
+
+.container {
+  display: flex;
+}
+
+.map {
+  height: 300px;
+  width: 300px;
+}
