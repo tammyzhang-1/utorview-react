@@ -1,10 +1,17 @@
 'use client'
-import styles from './page.module.css'
 import Controls from './components/Controls.js'
 import Visualizations from './components/Visualizations.js'
 import useSWR from 'swr'
 import * as d3 from 'd3';
 
+// font imports
+import { Poppins } from 'next/font/google'
+const poppins = Poppins({
+  weight: '400',
+  subsets: ['latin'],
+})
+
+// data fetcher constants
 const fetcher = (url) => fetch(url).then((res) => res.text());
 const url = "/available_dates.csv"
 
@@ -15,7 +22,7 @@ export default function App() {
   if (isLoading) return <div>loading...</div>
  
   return (
-      <main>
+      <main className={poppins.className}>
           <Controls modelDates={formatDates(data)} />
           <Visualizations />
       </main>
