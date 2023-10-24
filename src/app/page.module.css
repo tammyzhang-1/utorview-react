@@ -9,11 +9,13 @@
   gap: 0.5em;
 }
 
-.container {
-  display: flex;
-}
+ 
+/* .container {
+  height: 100%;
+} */
 
+/*
 .map {
-  height: 300px;
-  width: 300px;
-}
+  height: 100%;
+  width: 100%;
+} */

@@ -1,7 +1,5 @@
 'use client'
 import dynamic from 'next/dynamic';
-import styles from '../page.module.css';
-
 const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
 export default function Map() {
@@ -35,7 +33,7 @@ export default function Map() {
         },
       };
       return (
-        <div id="map" className={styles.map}>
+        <div id="map">
             <Plot data={ data } layout={ layout }/>
         </div>
       );

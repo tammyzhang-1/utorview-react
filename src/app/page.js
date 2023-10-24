@@ -24,7 +24,6 @@ export default function App() {
   return (
       <main className={poppins.className}>
           <Controls modelDates={formatDates(data)} />
-          <Visualizations />
       </main>
   )
 }
@@ -51,7 +50,8 @@ function formatDates(date_str) {
   const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
 
   // loop that adds valid dates/times to the dropdown
-  let datesFinal = dates.map(rd => formatTimeLabel(rd))
-  return datesFinal;
+  let datesFinal = dates.map(rd => formatTimeLabel(rd));
+  let datesIndex = dates.map(rd => formatTimeValue(rd))
+  return [datesFinal, datesIndex];
 }
 

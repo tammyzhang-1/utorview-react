@@ -4,40 +4,46 @@
   margin: 0;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+html {
+  height: 100vh;
+  overflow: hidden;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* .js-plotly-plot {
-  width: 50%;
+body, main, #container {
   height: 100%;
-} */
+}
 
 #viz-container {
+  height: 93%;
   display: flex;
-  width: 100%;
-  height: 100%;
+}
+
+#controls {
+  height: 7%;
+  padding: 1em;
+  display: flex;
+  gap: 1.5em;
 }
 
 #map {
-  width: 50%;
+  height: 100%;
+  padding: 1em;
+}
+
+#chart {
   height: 100%;
 }
 
-body {
-  height: 100vh;
+.js-plotly-plot, .plot-container .plotly {
+  height: 100%;
+  padding: 0;
 }
 
-main {
-  width: 100%;
-  height: 100%;
-  padding-left: 1em;
-  padding-right: 1em;
+#chart-instruction {
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  right: 12%;
+  width: 30%;
+  background-color: white;
 }
