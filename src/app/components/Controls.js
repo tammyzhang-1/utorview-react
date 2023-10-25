@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react';
 import Select from './Select.js'
 import Visualizations from './Visualizations.js'
@@ -23,7 +24,6 @@ let forecastOpts = forecastIntervals.map(function(interval) {
 
 export default function Controls({ modelDates }) {
     console.log("render occurred! Controls") 
-    console.log(modelDates)
 
     const [selectedModelRun, setSelectedModelRun] = useState(0);
     const [selectedEnsemble, setSelectedEnsemble] = useState(0);

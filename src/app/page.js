@@ -16,6 +16,7 @@ const fetcher = (url) => fetch(url).then((res) => res.text());
 const url = "/available_dates.csv"
 
 export default function App() {
+  console.log("render occurred! App")
   const { data, error, isLoading } = useSWR(url, fetcher, {revalidateOnFocus: false});
 
   if (error) return <div>failed to load</div>

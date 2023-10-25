@@ -1,12 +1,27 @@
 import Map from './Map.js'
 import Chart from './Chart.js'
 import * as d3 from 'd3';
+import useSWR from 'swr'
+import {decodeAsync} from '@msgpack/msgpack'
+
+let test_url = "/wofs_sparse_prob_20230630030000_ML_PREDICTED_TOR.msgpk"
+
 
 export default function Visualizations({times, selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
+    console.log("render occurred! Visualizations")
     let msg_file_len = get_ens_file_strings(times, selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR").length;
 
-    let json = {};
-    // load_data_parallel("wofs_sparse_prob_","ML_PREDICTED_TOR",0,1,json);
+    // const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,1], load_data_parallel, {revalidateOnFocus: false})
+    const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,1], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
+    
+    if (error) {
+        console.log("error")
+    } if (isLoading) {
+        console.log("loading")
+    } else
+    {
+        console.log("json: ", data)
+    }
 
     return (
         <div id="viz-container">
@@ -46,8 +61,7 @@ function get_ens_file_strings(times, selectedModelRun, file_prefix, interval, va
 
     // returning a list of time objects - minutes separated by interval within the time range
     var end_hour =  end_date.getHours()
-    var date_range = d3.timeMinutes(start_date,
-        end_date, interval)
+    var date_range = d3.timeMinutes(start_date, end_date, interval)
 
     // creating list of strings corresponding to the URLs to the relevant messagepack datasets corresponding to the 
     // list of timestamps just created
@@ -55,26 +69,29 @@ function get_ens_file_strings(times, selectedModelRun, file_prefix, interval, va
     let init_time = datetime.substring(0, 8)
     date_range.forEach(function(x) {file_list.push("https://wofsdltornado.blob.core.windows.net/wofs-dl-preds/"
         + init_time + start_hour + start_min + "/" + file_prefix +  formatTime(x) + "_" + variable + ".msgpk")});
-
-    console.log(file_list)
     return file_list;
 }
 
-async function load_data_parallel(file_prefix, variable, start, end, json_out) {
+async function load_data_parallel(url, file_prefix, variable, start, end) {
     console.log("load_data_parallel() called")
     // Returns: none. Creates json representations of all requested messagepack datasets and stores it in json_out.
     // function in which the messagepack dataset whose URLs are stored in the result of get_ens_file_strings
     // are requested and loaded into json responses using a messagepack handling library
-    var file_list = get_ens_file_strings(file_prefix, 5, variable).slice(start,end)
+    
+    // var file_list = get_ens_file_strings(file_prefix, 5, variable).slice(start,end)
+    var file_list = [url];
+    var json_out = {};
 
-    return Promise.all(file_list.map(url => fetch(url)))
-        .then(responses => Promise.all(responses.map(response => MessagePack.decodeAsync(response.body))))
+    await Promise.all(file_list.map(url => fetch(url)))
+        .then(responses => Promise.all(responses.map(response => decodeAsync(response.body))))
         .then(messages => {
-            j = start
+            var j = start
             for (let i=0; i<messages.length; i++) {
                 let key = "fm_" + String(j*5)
                 json_out[key] = messages[i]
                 j += 1
             }
-        });
+    });
+    console.log(json_out)
+    return json_out;
 }

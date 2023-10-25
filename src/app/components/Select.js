@@ -1,6 +1,8 @@
+'use client'
 import styles from '../page.module.css'; 
 
 export default function Select({id, label, options, selectedValue, setSelectedValue}) {
+    console.log("render occurred! Select")
     const optionList = options.map( (option, i) =>
         <option key={option} value={i}>{option}</option>
     );
