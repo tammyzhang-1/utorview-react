@@ -27,6 +27,7 @@ body, main, #container {
 
 #map {
   height: 100%;
+  width: 100%;
   padding: 1em;
 }
 
@@ -36,6 +37,7 @@ body, main, #container {
 
 .js-plotly-plot, .plot-container .plotly {
   height: 100%;
+  width: 100%;
   padding: 0;
 }
 

@@ -8,7 +8,7 @@ let ensembleNum = Array.from(Array(18).keys()) // creating option for ensemble m
 let ensembleNumOpts = ensembleNum.map(num => ("Member " + (num+1)))
 
 // concatenating some ensemble aggregates before the list of individual members
-let ensembleOpts = ["Median", "Mean", "Max"].concat(ensembleNumOpts) 
+let ensembleOpts = ["median", "mean", "max"].concat(ensembleNumOpts) 
 
 // formatting dropdown options for Forecast Hours
 let totalMinutesElapsed = 180; // total forecast length in minutes available in dropdown (default: 3 hours)
@@ -31,27 +31,41 @@ export default function Controls({ modelDates }) {
 
     const [selectedOverlay, setSelectedOverlay] = useState(false);
     const [selectedOpacity, setSelectedOpacity] = useState(10);
+
+    // const [selectedOptions, setSelectedOptions] = useState({
+    //     modelRun: 0,
+    //     ensembleMember: 0,
+    //     forecastHour: 0,
+    //     reflectivityCheck: false,
+    //     opacityRange: 10
+    // })
+
+    // function handleOptionsChange(e) {
+    //     setSelectedOptions({
+    //       ...selectedOptions,
+    //       [e.target.name]: e.target.value
+    //     });
+    // }
    
     return (
         <div id="container">
             <div id="controls">
                 <Select 
-                    id={"model-run"}
+                    id={"modelRun"}
                     label={"Model Run"} 
                     options={modelDates[0]}
                     selectedValue={selectedModelRun}
                     setSelectedValue={setSelectedModelRun}
                 />
-                <p>Selected model: {selectedModelRun}</p>
                 <Select 
-                    id={"ensemble-member"}
+                    id={"ensembleMember"}
                     label={"Ensemble Member"} 
                     options={ensembleOpts}
                     selectedValue={selectedEnsemble}
                     setSelectedValue={setSelectedEnsemble}
                 />
                 <Select 
-                    id={"forecast-hour"}
+                    id={"forecastHour"}
                     label={"Forecast Hour"} 
                     options={forecastOpts}
                     selectedValue={selectedForecast}
@@ -66,17 +80,17 @@ export default function Controls({ modelDates }) {
                 </label>
                 <label>
                     Opacity: 
-                    <input type="range" min="0" max="100"
+                    <input type="range" min="0" max="100" name="opacityRange"
                         value={selectedOpacity}
                         onChange={e => setSelectedOpacity(e.target.value)}>
                     </input>
                 </label>
             </div>
             <Visualizations 
-                times={modelDates[1]} 
-                selectedModelRun={selectedModelRun} 
-                selectedEnsemble={selectedEnsemble} 
-                selectedForecast={selectedForecast}
+                times={modelDates}
+                selectedModelRun={modelDates[1][selectedModelRun]} 
+                selectedEnsemble={ensembleOpts[selectedEnsemble]} 
+                selectedForecast={forecastOpts[selectedForecast]}
                 selectedOverlay={selectedOverlay}
                 selectedOpacity={selectedOpacity}
             />

@@ -9,29 +9,28 @@ let test_url = "/wofs_sparse_prob_20230630030000_ML_PREDICTED_TOR.msgpk"
 
 export default function Visualizations({times, selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
     console.log("render occurred! Visualizations")
-    let msg_file_len = get_ens_file_strings(times, selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR").length;
+    let msg_file_len = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR").length;
 
-    // const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,1], load_data_parallel, {revalidateOnFocus: false})
     const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,1], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
     
     if (error) {
-        console.log("error")
+        return (
+            <div>Error fetching data.</div>
+        )
     } if (isLoading) {
-        console.log("loading")
-    } else
-    {
-        console.log("json: ", data)
-    }
-
+        return (
+            <div>Loading data...</div>
+        )
+    } 
     return (
         <div id="viz-container">
-            <Map />
-            <Chart />
+            <Map msg_file_len={msg_file_len} times={times} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
+            {/* <Chart /> */}
         </div>
     );
 }
 
-function get_ens_file_strings(times, selectedModelRun, file_prefix, interval, variable) {
+function get_ens_file_strings(selectedModelRun, file_prefix, interval, variable) {
     console.log("get_ens_file_strings() called")
     // Returns: a list of strings representing URLs to messagepack datasets corresponding to the requested data for the requested time
     // Parameters being used in initialization: "wofs_sparse_prob_",5,"ML_PREDICTED_TOR"
@@ -40,7 +39,7 @@ function get_ens_file_strings(times, selectedModelRun, file_prefix, interval, va
     // taking the currently selected value of the date dropdown menu and parsing it into parts
     const formatTime = d3.timeFormat("%Y%m%d%H%M00");
 
-    var datetime = times[selectedModelRun];
+    var datetime = selectedModelRun;
     var year = datetime.substring(0, 4);
     var month = parseInt(datetime.substring(4, 6)) - 1
     var day = datetime.substring(6, 8)

@@ -11,7 +11,7 @@ export default function Select({id, label, options, selectedValue, setSelectedVa
     <div className="selectComponent">
         <label className={styles.select}>
             {label}: 
-            <select name={label} value={selectedValue} onChange={e => setSelectedValue(e.target.value)}>
+            <select name={id} value={selectedValue} onChange={e => setSelectedValue(e.target.value)}>
                 {optionList}
             </select>
         </label>
