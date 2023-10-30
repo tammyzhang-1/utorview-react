@@ -27,19 +27,15 @@ export default function Map({msg_file_len, times, selectedModelRun, selectedEnse
 
   let plot_d = {};
   // run a function that creates FeatureCollection for each timestamp of json and saves these to plot_d
-  build_data_object(transformer,selectedEnsemble,0,1,json,plot_d);
-  console.log(json)
-  console.log(plot_d)
+  build_data_object(transformer,selectedEnsemble,0,2,json,plot_d);
+
   // more grid info describing the data
   let total_grid_cells = json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['rows'].length;
   let lon_array_m = create_coord_array(coord[0], wofs_x_length, resolution);
   let lat_array_m = create_coord_array(coord[1], wofs_y_length, resolution);
   let domain = get_wofs_domain_geom(transformer, lon_array_m, lat_array_m);
  
-  console.log(plot_d)
-  console.log(selectedForecast)
-  console.log(selectedForecast + '_' + selectedEnsemble)
-  let plot_data = plot_d['0_' + selectedEnsemble];
+  let plot_data = plot_d[selectedForecast + '_' + selectedEnsemble];
   let plot_geom = plot_data[0];
   let plot_coords = plot_data[1];
   let refl_data, total_grid_cells_r, plot_geom_r, plot_coords_r;
@@ -177,9 +173,6 @@ function build_data_object(transformer, selectedEnsemble, start,end,data,obj_dic
   // and saves it to obj_dict_out.
   // Parameters on initialization: build_data_object(0,1,json,plot_d);
 
-  // getting the currently selected value of the Ensemble Member dropdown
-  let member = selectedEnsemble;
-
   // reprojecting the coordinates in the data
   let coord = transformer.inverse(data['fm_0']['se_coords'])
   let lon_array_m = create_coord_array(coord[0], wofs_x_length, resolution)
@@ -188,10 +181,15 @@ function build_data_object(transformer, selectedEnsemble, start,end,data,obj_dic
   // creating a FeatureCollection for each timestamp
   for (let i of d3.range(start, end)) {
     let minutes = i*5
-    let subset = data["fm_" + minutes]["MEM_" + member]
+
+    console.log(data)
+    console.log("fm_" + minutes)
+    console.log(data["fm_" + minutes])
+
+    let subset = data["fm_" + minutes]["MEM_" + selectedEnsemble]
 
     let plot_data = create_geom_object(transformer, subset["rows"], subset["columns"], lon_array_m, lat_array_m)
-    obj_dict_out[minutes + "_" + member] = plot_data
+    obj_dict_out[minutes + "_" + selectedEnsemble] = plot_data
   }
 }
 
