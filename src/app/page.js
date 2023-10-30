@@ -15,16 +15,21 @@ const poppins = Poppins({
 const fetcher = (url) => fetch(url).then((res) => res.text());
 const url = "/available_dates.csv"
 
+const formatTimeValue = d3.utcFormat("%Y%m%d%H%M");
+const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
+
 export default function App() {
   console.log("render occurred! App")
   const { data, error, isLoading } = useSWR(url, fetcher, {revalidateOnFocus: false});
 
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
+
+  let dateList = formatDates(data);
  
   return (
       <main className={poppins.className}>
-          <Controls modelDates={formatDates(data)} />
+          <Controls modelDates={dateList.map(rd => formatTimeLabel(rd))} modelDateValues={dateList.map(rd => formatTimeValue(rd))} />
       </main>
   )
 }
@@ -45,14 +50,16 @@ function formatDates(date_str) {
   }
   dates = dates.filter(function(d) {return valid_init_hours.includes(d.getUTCHours());});
   dates = dates.reverse();
+
+  return dates;
       
   // formatting for time and date in the dropdown
-  const formatTimeValue = d3.utcFormat("%Y%m%d%H%M");
-  const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
+  // const formatTimeValue = d3.utcFormat("%Y%m%d%H%M");
+  // const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
 
   // loop that adds valid dates/times to the dropdown
-  let datesFinal = dates.map(rd => formatTimeLabel(rd));
-  let datesIndex = dates.map(rd => formatTimeValue(rd))
-  return [datesFinal, datesIndex];
+  // let datesFinal = dates.map(rd => formatTimeLabel(rd));
+  // let datesIndex = dates.map(rd => formatTimeValue(rd))
+  // return [datesFinal, datesIndex];
 }
 

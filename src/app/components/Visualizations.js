@@ -4,15 +4,19 @@ import * as d3 from 'd3';
 import useSWR from 'swr'
 import {decodeAsync} from '@msgpack/msgpack'
 
-let test_url = "/wofs_sparse_prob_20230630030000_ML_PREDICTED_TOR.msgpk"
+let test_url = ["/wofs_sparse_prob_20230630030000_ML_PREDICTED_TOR.msgpk", "/wofs_sparse_prob_20230630030500_ML_PREDICTED_TOR.msgpk"]
 
 
 export default function Visualizations({times, selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
     console.log("render occurred! Visualizations")
+    console.log(selectedEnsemble)
+
     let msg_file_len = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR").length;
 
     const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,1], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
     
+    console.log(data)
+
     if (error) {
         return (
             <div>Error fetching data.</div>
@@ -39,6 +43,7 @@ function get_ens_file_strings(selectedModelRun, file_prefix, interval, variable)
     // taking the currently selected value of the date dropdown menu and parsing it into parts
     const formatTime = d3.timeFormat("%Y%m%d%H%M00");
 
+    console.log(selectedModelRun)
     var datetime = selectedModelRun;
     var year = datetime.substring(0, 4);
     var month = parseInt(datetime.substring(4, 6)) - 1
@@ -78,7 +83,7 @@ async function load_data_parallel(url, file_prefix, variable, start, end) {
     // are requested and loaded into json responses using a messagepack handling library
     
     // var file_list = get_ens_file_strings(file_prefix, 5, variable).slice(start,end)
-    var file_list = [url];
+    var file_list = url;
     var json_out = {};
 
     await Promise.all(file_list.map(url => fetch(url)))
