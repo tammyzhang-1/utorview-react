@@ -87,13 +87,13 @@ export default function Controls({ modelDates, modelDateValues }) {
                     </input>
                 </label>
             </div>
-            <div>
+            {/* <div>
                 <p>State tracker: Model Run is {selectedModelRun} </p>
                 <p>State tracker: Ensemble is {selectedEnsemble} </p>
                 <p>State tracker: Forecast is {selectedForecast}</p>
                 <p>State tracker: Overlay is {selectedOverlay}</p>
                 <p>State tracker: Opacity is {selectedOpacity}</p>
-            </div>
+            </div> */}
             <Visualizations 
                 times={modelDates}
                 selectedModelRun={selectedModelRun}

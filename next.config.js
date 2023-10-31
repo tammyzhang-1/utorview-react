@@ -1,15 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  output: 'export'
+}
 
-// module.exports = nextConfig
-
-module.exports = {
-    async rewrites() {
-      return [
-        {
-          source: '/request/:path*',
-          destination: 'https://wofsdltornado.blob.core.windows.net/:path*'
-        }
-      ]
-    }
-  }
+module.exports = nextConfig

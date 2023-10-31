@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic';
 import proj4 from 'proj4';
 import * as d3 from 'd3';
+import Chart from './Chart.js'
 
 const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
@@ -27,13 +28,15 @@ export default function Map({msg_file_len, times, selectedModelRun, selectedEnse
 
   let plot_d = {};
   // run a function that creates FeatureCollection for each timestamp of json and saves these to plot_d
-  build_data_object(transformer,selectedEnsemble,0,2,json,plot_d);
+  build_data_object(transformer,selectedEnsemble,0,msg_file_len,json,plot_d);
 
   // more grid info describing the data
   let total_grid_cells = json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['rows'].length;
   let lon_array_m = create_coord_array(coord[0], wofs_x_length, resolution);
   let lat_array_m = create_coord_array(coord[1], wofs_y_length, resolution);
   let domain = get_wofs_domain_geom(transformer, lon_array_m, lat_array_m);
+
+  console.log(plot_d)
  
   let plot_data = plot_d[selectedForecast + '_' + selectedEnsemble];
   let plot_geom = plot_data[0];
@@ -151,6 +154,7 @@ let config = {responsive: true}
     <div id="map">
         {/* <Plot data={ map_data } layout={ layout }/> */}
         <Plot data={all_traces} layout={layout} config={config}/>
+        {/* <Chart fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} /> */}
     </div>
   );
 }
@@ -181,11 +185,6 @@ function build_data_object(transformer, selectedEnsemble, start,end,data,obj_dic
   // creating a FeatureCollection for each timestamp
   for (let i of d3.range(start, end)) {
     let minutes = i*5
-
-    console.log(data)
-    console.log("fm_" + minutes)
-    console.log(data["fm_" + minutes])
-
     let subset = data["fm_" + minutes]["MEM_" + selectedEnsemble]
 
     let plot_data = create_geom_object(transformer, subset["rows"], subset["columns"], lon_array_m, lat_array_m)

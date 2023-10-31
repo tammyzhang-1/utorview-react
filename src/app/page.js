@@ -1,6 +1,5 @@
 'use client'
 import Controls from './components/Controls.js'
-import Visualizations from './components/Visualizations.js'
 import useSWR from 'swr'
 import * as d3 from 'd3';
 
@@ -52,14 +51,5 @@ function formatDates(date_str) {
   dates = dates.reverse();
 
   return dates;
-      
-  // formatting for time and date in the dropdown
-  // const formatTimeValue = d3.utcFormat("%Y%m%d%H%M");
-  // const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
-
-  // loop that adds valid dates/times to the dropdown
-  // let datesFinal = dates.map(rd => formatTimeLabel(rd));
-  // let datesIndex = dates.map(rd => formatTimeValue(rd))
-  // return [datesFinal, datesIndex];
 }
 
