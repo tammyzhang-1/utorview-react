@@ -2,15 +2,6 @@
 import dynamic from 'next/dynamic';
 const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
-var trace1 = {
-    x: [5, 0],
-    y: [0, 1],
-    type: 'scatter',
-    opacity: 0
-  };
-  
-  var data = [trace1];
-
 export default function Chart({fcst_dates, msg_file_len, domain }) {
     // dictionary of information for spaghetti plot
     let init_trace = {
@@ -18,11 +9,12 @@ export default function Chart({fcst_dates, msg_file_len, domain }) {
         y: [0.25],
         // text: ['Click on a probability grid cell to display a spaghetti plot of all ensemble members.'],
         // textfont: {size: 16},
-        mode: 'text',
-        xaxis: 'x2',
-        yaxis: 'y2',
+        // mode: 'text',
+        // xaxis: 'x2',
+        // yaxis: 'y2',
         type: 'scatter',
-        showlegend: false
+        showlegend: false,
+        opacity: 0
     };
 
     //dictionary for gray lines to show on spaghetti plot
@@ -45,18 +37,18 @@ export default function Chart({fcst_dates, msg_file_len, domain }) {
     //     lat: null
     // };
 
-    console.log(init_trace);
+    // console.log(init_trace);
     console.log(wofs_domain)
     // console.log(cell_domain)
 
     // let all_traces = [init_trace, wofs_domain, cell_domain].flat();
-    let all_traces = [init_trace, wofs_domain].flat()
+    let all_traces = [init_trace, wofs_domain].flat();
 
     let layout = {
         showlegend: true,
-        grid: {rows: 1, columns: 2, pattern: 'independent'},
-        yaxis2: {range: [0, 0.5], title: {text:'Probability of Tornado', font: {size: 20}}},
-        xaxis2: {range: [fcst_dates[0], fcst_dates[fcst_dates.length-1]], title: {text:'Forecast Date/Time', font: {size: 20}}, tickformat: '%m-%d %H:%M', tickangle: 35},
+        // grid: {rows: 1, columns: 1, pattern: 'independent'},
+        yaxis: {range: [0, 0.5], title: {text:'Probability of Tornado', font: {size: 20}}},
+        xaxis: {range: [fcst_dates[0], fcst_dates[fcst_dates.length-1]], title: {text:'Forecast Date/Time', font: {size: 18}}, tickformat: '%m-%d %H:%M', tickangle: 35},
         shapes: [{
                     type: 'line',
                     x0: fcst_dates[0],
@@ -72,17 +64,19 @@ export default function Chart({fcst_dates, msg_file_len, domain }) {
         legend: {
             y: 1,
             x: 0.95,
-            xaxis: 'x2',
-            yaxis: 'y2',
+            // xaxis: 'x2',
+            // yaxis: 'y2',
             font: {size: 18},
         }
     }
+    let config = {responsive: true}
+
     return (
         <div id="chart">
             <div id="chart-instruction">
                 Click on a probability grid cell to display a spaghetti plot of all ensemble members.
             </div>
-            <Plot data={all_traces} layout={layout} />
+            <Plot data={all_traces} layout={layout} config={config}/>
         </div>
     );
 }

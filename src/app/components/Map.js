@@ -56,7 +56,7 @@ export default function Map({msg_file_len, times, selectedModelRun, selectedEnse
                    opacity: 0.7},
           z: json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['values'], // for use in the hover tooltip
           zmin: 0, zmax: 0.75,
-          colorbar: {x: -0.05, thickness: 20},
+          colorbar: {x: -0.12, thickness: 20},
           hoverinfo: "z",
           customdata: plot_coords, 
           colorscale: 'YlGnBu',
@@ -104,6 +104,7 @@ let all_traces = [map_data].flat()
 let layout = {
   title: {text: get_title_timestamp(selectedModelRun, selectedForecast), x: 0.05, font: {size: 22}},
   uirevision:'true',
+  width: '100%',
   mapbox: {
       style: "carto-darkmatter",
   layers: [
@@ -128,7 +129,7 @@ let layout = {
       zoom: 5
   },
   // showlegend: true,
-  grid: {rows: 1, columns: 2, pattern: 'independent'},
+  // grid: {rows: 1, columns: 1, pattern: 'independent'},
   // yaxis2: {range: [0, 0.5], title: {text:'Probability of Tornado', font: {size: 20}}},
   // xaxis2: {range: [fcst_dates[0], fcst_dates[fcst_dates.length-1]], title: {text:'Forecast Date/Time', font: {size: 20}}, tickformat: '%m-%d %H:%M', tickangle: 35},
   // shapes: [{type: 'line',
@@ -151,10 +152,12 @@ let layout = {
 
 let config = {responsive: true}
   return (
-    <div id="map">
+    <div id="viz-wrapper">
         {/* <Plot data={ map_data } layout={ layout }/> */}
-        <Plot data={all_traces} layout={layout} config={config}/>
-        {/* <Chart fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} /> */}
+        <div id="map">
+          <Plot data={all_traces} layout={layout} config={config}/>
+        </div>
+        <Chart fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} />
     </div>
   );
 }

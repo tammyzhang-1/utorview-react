@@ -15,7 +15,7 @@ body, main, #container {
 
 #viz-container {
   height: 93%;
-  display: flex;
+  /* display: flex; */
 }
 
 #controls {
@@ -25,14 +25,23 @@ body, main, #container {
   gap: 1.5em;
 }
 
-#map {
-  height: 100%;
+#viz-wrapper {
   width: 100%;
-  padding: 1em;
+  height: 100%;
+  display: flex;
+}
+
+#map {
+  box-sizing: border-box;
+  height: 100%;
+  width: 50%;
 }
 
 #chart {
+  box-sizing: border-box;
   height: 100%;
+  width: 50%;
+  padding-bottom: 1em;
 }
 
 .js-plotly-plot, .plot-container .plotly {
