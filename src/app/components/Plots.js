@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
-export default function Plots({all_traces, layout, config, fcst_dates, msg_file_len, domain, transformer, lon_array_m, lat_array_m, radius}) {
+export default function Plots({all_traces, layout, config, fcst_dates, msg_file_len, domain, transformer, lon_array_m, lat_array_m, radius, json}) {
     console.log("render occurred! Plots")
     const [selectedPoint, setSelectedPoint] = useState([]);
 
@@ -19,11 +19,11 @@ export default function Plots({all_traces, layout, config, fcst_dates, msg_file_
     }
 
     return (
-        <div>
+        <div id="viz-wrapper">
             <div id="map">
                 <Plot data={all_traces} layout={layout} config={config} onClick={(e) => handleSelectPoint(e)}/>
             </div>
-            <Chart selectedPoint={selectedPoint} fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} />
+            <Chart selectedPoint={selectedPoint} fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} json={json} />
         </div>
     )
 }
@@ -57,8 +57,6 @@ function create_geom(transformer, i, j, lons, lats, radius) {
     let north_lat_m = lats[i] + radius
     let west_lon_m = lons[j] - radius
     let east_lon_m = lons[j] + radius
-
-    console.log([south_lat_m, north_lat_m, west_lon_m, east_lon_m])
   
     let se = transformer.forward([east_lon_m, south_lat_m])
     let ne = transformer.forward([east_lon_m, north_lat_m])

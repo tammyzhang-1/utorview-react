@@ -18,7 +18,7 @@ let orig_proj = "WGS84";
 let base_proj = "+proj=lcc +lat_0=34.321392 +lon_0=-98.0134 +lat_1=30 +lat_2=60 +a=6370000 +b=6370000 +ellps=WGS84";
 let base_transformer = proj4(base_proj, orig_proj);
 
-export default function Geometry({msg_file_len, times, selectedModelRun, selectedEnsemble, selectedForecast, json}) {
+export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemble, selectedForecast, json}) {
   let base_coord = base_transformer.inverse(json['fm_' + selectedForecast]['se_coords']);
   let wofs_proj = derive_new_proj(base_transformer, base_coord);
   let transformer = proj4(wofs_proj, orig_proj);
@@ -107,8 +107,8 @@ export default function Geometry({msg_file_len, times, selectedModelRun, selecte
   let config = {responsive: true}
 
   return (
-    <div id="viz-wrapper">
-      <Plots all_traces={all_traces} layout={layout} config={config} fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} transformer={transformer} lon_array_m={lon_array_m} lat_array_m={lat_array_m} radius={radius} />
+    <div id="viz-outer-container">
+      <Plots all_traces={all_traces} layout={layout} config={config} fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} transformer={transformer} lon_array_m={lon_array_m} lat_array_m={lat_array_m} radius={radius} json={json}/>
     </div>
   );
 }

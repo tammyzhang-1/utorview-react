@@ -27,8 +27,7 @@ export default function Visualizations({times, selectedModelRun, selectedEnsembl
     } 
     return (
         <div id="viz-container">
-            <Geometry msg_file_len={msg_file_len} times={times} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
-            {/* <Chart /> */}
+            <Geometry msg_file_len={msg_file_len} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
         </div>
     );
 }
