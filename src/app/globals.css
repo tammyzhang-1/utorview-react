@@ -34,7 +34,7 @@ body, main, #container {
 #map {
   box-sizing: border-box;
   height: 100%;
-  width: 50%;
+  /* width: 50%; */
 }
 
 #chart {

@@ -2,9 +2,10 @@
 import dynamic from 'next/dynamic';
 import proj4 from 'proj4';
 import * as d3 from 'd3';
-import Chart from './Chart.js'
+import Plots from './Plots.js'
+import { useState } from 'react';
 
-const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
+// const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
 // predefined resolution settings
 let wofs_x_length = 300;
@@ -17,7 +18,7 @@ let orig_proj = "WGS84";
 let base_proj = "+proj=lcc +lat_0=34.321392 +lon_0=-98.0134 +lat_1=30 +lat_2=60 +a=6370000 +b=6370000 +ellps=WGS84";
 let base_transformer = proj4(base_proj, orig_proj);
 
-export default function Map({msg_file_len, times, selectedModelRun, selectedEnsemble, selectedForecast, json}) {
+export default function Geometry({msg_file_len, times, selectedModelRun, selectedEnsemble, selectedForecast, json}) {
   let base_coord = base_transformer.inverse(json['fm_' + selectedForecast]['se_coords']);
   let wofs_proj = derive_new_proj(base_transformer, base_coord);
   let transformer = proj4(wofs_proj, orig_proj);
@@ -36,11 +37,14 @@ export default function Map({msg_file_len, times, selectedModelRun, selectedEnse
   let lat_array_m = create_coord_array(coord[1], wofs_y_length, resolution);
   let domain = get_wofs_domain_geom(transformer, lon_array_m, lat_array_m);
 
-  console.log(plot_d)
- 
   let plot_data = plot_d[selectedForecast + '_' + selectedEnsemble];
   let plot_geom = plot_data[0];
   let plot_coords = plot_data[1];
+
+  // console.log(plot_data)
+  // console.log(plot_geom)
+  // console.log(plot_coords)
+
   let refl_data, total_grid_cells_r, plot_geom_r, plot_coords_r;
 
   // mapbox token for basemap
@@ -50,114 +54,61 @@ export default function Map({msg_file_len, times, selectedModelRun, selectedEnse
   let fcst_dates = get_fcst_date_range(selectedModelRun,5);
 
   // dictionary of custom data layer information
-  let map_data = {type: "choroplethmapbox",
-          locations: d3.range(total_grid_cells), // length of data (number of rows)
-          marker: {line: {width: 0},
-                   opacity: 0.7},
-          z: json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['values'], // for use in the hover tooltip
-          zmin: 0, zmax: 0.75,
-          colorbar: {x: -0.12, thickness: 20},
-          hoverinfo: "z",
-          customdata: plot_coords, 
-          colorscale: 'YlGnBu',
-          geojson: plot_geom
+  let map_data = {
+    type: "choroplethmapbox",
+    locations: d3.range(total_grid_cells), // length of data (number of rows)
+    marker: {
+      line: {width: 0},
+      opacity: 0.7
+    },
+    z: json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['values'], // for use in the hover tooltip
+    zmin: 0, zmax: 0.75,
+    colorbar: {x: -0.12, thickness: 20},
+    hoverinfo: "z",
+    customdata: plot_coords, 
+    colorscale: 'YlGnBu',
+    geojson: plot_geom
   }; // referring to FeatureCollection generated from the data
 
-  // dictionary of information for spaghetti plot
-  // let init_trace = {
-  //   x: [fcst_dates[Math.floor(msg_file_len/2)]],
-  //   y: [0.25],
-  //   // text: ['Click on a probability grid cell to display a spaghetti plot of all ensemble members.'],
-  //   // textfont: {size: 16},
-  //   mode: 'text',
-  //   xaxis: 'x2',
-  //   yaxis: 'y2',
-  //   type: 'scatter',
-  //   showlegend: false
-  // };
+  // creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+  // let all_traces = [map_data, init_trace, wofs_domain, cell_domain].flat();
+  let all_traces = [map_data].flat() //turn into state?
 
-  // dictionary for gray lines to show on spaghetti plot
-  // let wofs_domain = {
-  //   type: "scattermapbox",
-  //   showlegend: false,
-  //   mode: 'lines',
-  //   line: {color: 'grey', width: 2},
-  //   lon: domain[0],
-  //   lat: domain[1],
-  // };
-
-  // dictionary for black line on spaghetti plot
-//   let cell_domain = {
-//     type: "scattermapbox",
-//     showlegend: false,
-//     mode: 'lines',
-//     line: {color: 'black', width: 2},
-//     lon: null,
-//     lat: null
-// };
-
-// creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
-// let all_traces = [map_data, init_trace, wofs_domain, cell_domain].flat();
-let all_traces = [map_data].flat()
-
-// map object layers + settings
-let layout = {
-  title: {text: get_title_timestamp(selectedModelRun, selectedForecast), x: 0.05, font: {size: 22}},
-  uirevision:'true',
-  width: '100%',
-  mapbox: {
+  // map object layers + settings
+  let layout = {
+    title: {text: get_title_timestamp(selectedModelRun, selectedForecast), x: 0.05, font: {size: 22}},
+    uirevision:'true',
+    width: '100%',
+    mapbox: {
       style: "carto-darkmatter",
-  layers: [
-         {
-             sourcetype: "geojson",
-              source: "/geojson-counties-fips.json", // county boundaries
-              type: "line",
-              color: "#BA9DD5",
-              line: {"width": 0.25},
-              below: "traces"
-          },
-          {
-              sourcetype: "geojson",
-              source: "/cnty_warn_bnds.json", // county warning boundaries
-              type: "line",
-              color: "yellow",
-              line: {"width": 0.4, opacity: 0.0},
-              below: "traces"
-          }
+      layers: [
+        {
+          sourcetype: "geojson",
+          source: "/geojson-counties-fips.json", // county boundaries
+          type: "line",
+          color: "#BA9DD5",
+          line: {"width": 0.25},
+          below: "traces"
+        },
+        {
+          sourcetype: "geojson",
+          source: "/cnty_warn_bnds.json", // county warning boundaries
+          type: "line",
+          color: "yellow",
+          line: {"width": 0.4, opacity: 0.0},
+          below: "traces"
+        }
       ],
       center: {lon: domain[2][0], lat: domain[2][1]},
       zoom: 5
-  },
-  // showlegend: true,
-  // grid: {rows: 1, columns: 1, pattern: 'independent'},
-  // yaxis2: {range: [0, 0.5], title: {text:'Probability of Tornado', font: {size: 20}}},
-  // xaxis2: {range: [fcst_dates[0], fcst_dates[fcst_dates.length-1]], title: {text:'Forecast Date/Time', font: {size: 20}}, tickformat: '%m-%d %H:%M', tickangle: 35},
-  // shapes: [{type: 'line',
-  //           x0: fcst_dates[0],
-  //           y0: 0,
-  //           x1: fcst_dates[0],
-  //           y1: 0.5,
-  //     opacity: 0.3,
-  //           line: {color: 'rgba(0,128,26,0.68)',
-  //                  width: 10,
-  //                  opacity: 0.5}}],
-  // legend: {
-  //     y: 1,
-  //     x: 0.95,
-  //     xaxis: 'x2',
-  //     yaxis: 'y2',
-  //     font: {size: 18},
-  // }
-};
+    }
+  };
 
-let config = {responsive: true}
+  let config = {responsive: true}
+
   return (
     <div id="viz-wrapper">
-        {/* <Plot data={ map_data } layout={ layout }/> */}
-        <div id="map">
-          <Plot data={all_traces} layout={layout} config={config}/>
-        </div>
-        <Chart fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} />
+      <Plots all_traces={all_traces} layout={layout} config={config} fcst_dates={fcst_dates} msg_file_len={msg_file_len} domain={domain} transformer={transformer} lon_array_m={lon_array_m} lat_array_m={lat_array_m} radius={radius} />
     </div>
   );
 }
@@ -218,7 +169,8 @@ function create_geom(transformer, i, j, lons, lats) {
   let sw = transformer.forward([west_lon_m, south_lat_m])
   let nw = transformer.forward([west_lon_m, north_lat_m])
 
-  return [sw, nw, ne, se, sw]}
+  return [sw, nw, ne, se, sw]
+}
 
 function create_geom_object(transformer, i_indices, j_indices, lons, lats) {
   console.log("create_geom_object() called")

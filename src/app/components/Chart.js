@@ -2,16 +2,14 @@
 import dynamic from 'next/dynamic';
 const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
-export default function Chart({fcst_dates, msg_file_len, domain }) {
+export default function Chart({selectedPoint, fcst_dates, msg_file_len, domain }) {
+    console.log("Render occurred! Chart")
     // dictionary of information for spaghetti plot
+    console.log(selectedPoint)
+    
     let init_trace = {
         x: [fcst_dates[Math.floor(msg_file_len/2)]],
         y: [0.25],
-        // text: ['Click on a probability grid cell to display a spaghetti plot of all ensemble members.'],
-        // textfont: {size: 16},
-        // mode: 'text',
-        // xaxis: 'x2',
-        // yaxis: 'y2',
         type: 'scatter',
         showlegend: false,
         opacity: 0
@@ -38,7 +36,7 @@ export default function Chart({fcst_dates, msg_file_len, domain }) {
     // };
 
     // console.log(init_trace);
-    console.log(wofs_domain)
+    // console.log(wofs_domain)
     // console.log(cell_domain)
 
     // let all_traces = [init_trace, wofs_domain, cell_domain].flat();

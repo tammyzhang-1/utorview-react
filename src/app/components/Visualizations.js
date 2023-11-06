@@ -1,4 +1,5 @@
-import Map from './Map.js'
+'use client'
+import Geometry from './Geometry.js'
 import Chart from './Chart.js'
 import * as d3 from 'd3';
 import useSWR from 'swr'
@@ -8,8 +9,10 @@ import {decodeAsync} from '@msgpack/msgpack'
 export default function Visualizations({times, selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
     console.log("render occurred! Visualizations")
 
-    let msg_file_len = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR").length;
-    let test_url = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_", 5, "ML_PREDICTED_TOR").slice(0,msg_file_len)
+    let fileStrings = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR")
+    
+    let msg_file_len = fileStrings.length;
+    let test_url = fileStrings.slice(0,msg_file_len)
 
     const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,msg_file_len], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
 
@@ -24,7 +27,7 @@ export default function Visualizations({times, selectedModelRun, selectedEnsembl
     } 
     return (
         <div id="viz-container">
-            <Map msg_file_len={msg_file_len} times={times} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
+            <Geometry msg_file_len={msg_file_len} times={times} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
             {/* <Chart /> */}
         </div>
     );
@@ -38,8 +41,6 @@ function get_ens_file_strings(selectedModelRun, file_prefix, interval, variable)
 
     // taking the currently selected value of the date dropdown menu and parsing it into parts
     const formatTime = d3.timeFormat("%Y%m%d%H%M00");
-
-    console.log(selectedModelRun)
     var datetime = selectedModelRun;
     var year = datetime.substring(0, 4);
     var month = parseInt(datetime.substring(4, 6)) - 1
@@ -81,8 +82,6 @@ async function load_data_parallel(url, file_prefix, variable, start, end) {
     // var file_list = get_ens_file_strings(file_prefix, 5, variable).slice(start,end)
     var file_list = url;
     var json_out = {};
-
-    console.log(url);
 
     await Promise.all(file_list.map(url => fetch(url)))
         .then(responses => Promise.all(responses.map(response => decodeAsync(response.body))))
