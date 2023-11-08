@@ -1,4 +1,5 @@
 'use client'
+// root component. fetching from available dates csv happens here, the data is then passed to Controls.
 import Controls from './components/Controls.js'
 import useSWR from 'swr'
 import * as d3 from 'd3';
@@ -13,7 +14,7 @@ const poppins = Poppins({
 
 // data fetcher constants
 const fetcher = (url) => fetch(url).then((res) => res.text());
-const url = "/available_dates.csv"
+const url = "https://wofsdltornado.blob.core.windows.net/wofs-dl-preds/available_dates.csv"
 
 const formatTimeValue = d3.utcFormat("%Y%m%d%H%M");
 const formatTimeLabel = d3.utcFormat("%Y %b %d %H%M UTC");
@@ -26,7 +27,7 @@ export default function App() {
     if (data) return formatDates(data);
     else return {};
   }, [data])
-  
+
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
  

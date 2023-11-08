@@ -1,4 +1,5 @@
 'use client'
+// component for rendering dropdown menu elements from arrays
 import styles from '../page.module.css'; 
 
 export default function Select({label, options, values, selectedValue, setSelectedValue}) {

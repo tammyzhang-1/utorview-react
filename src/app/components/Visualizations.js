@@ -1,6 +1,7 @@
 'use client'
+// invisible component that wraps the visualization section of the page
+// deals with data fetching and passes the data to Geometry for rendering calculations
 import Geometry from './Geometry.js'
-import Chart from './Chart.js'
 import * as d3 from 'd3';
 import useSWR from 'swr'
 import {decodeAsync} from '@msgpack/msgpack'

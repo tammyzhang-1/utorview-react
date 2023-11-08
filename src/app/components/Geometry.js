@@ -1,9 +1,9 @@
 'use client'
+// invisible component that wraps both the map and line plot
+// deals with constructing the geometry for the map and passes data in plotly dictionary format to Plots
 import proj4 from 'proj4';
 import * as d3 from 'd3';
 import Plots from './Plots.js'
-import { useMemo } from 'react';
-
 
 // predefined resolution settings
 let wofs_x_length = 300;
@@ -24,32 +24,7 @@ export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemb
   let transformer = proj4(wofs_proj, orig_proj);
   let coord = transformer.inverse(json['fm_' + selectedForecast]['se_coords']);
 
-  // const plot_d = useMemo(() => {
-  //   console.log(selectedEnsemble)
-  //   console.log("PLOT_D JUST LOADED")
-  //   return build_data_object(transformer,selectedEnsemble,0,msg_file_len,json)
-  //   }, 
-  //   [selectedEnsemble])
   let plot_d = build_data_object(transformer,selectedEnsemble,0,msg_file_len,json)
-
-  // console.log(reflectivityData)
-  // const plot_r = useMemo(() => {
-  //   if (reflectivityData) {
-  //     console.log("PLOT_R JUST LOADED")
-  //     return build_data_object(transformer,selectedEnsemble,0, msg_file_len, reflectivityData)
-  //   } else {
-  //     console.log("PLOT_R NOT LOAED")
-  //     return {};
-  //   }},
-  //   [selectedEnsemble])
-
-
-  let spaghetti_traces = [];
-  let cell_i, cell_j;
-
-  // let plot_d = {};
-  // run a function that creates FeatureCollection for each timestamp of json and saves these to plot_d
-  // build_data_object(transformer,selectedEnsemble,0,msg_file_len,json);
 
   let plot_r = {}
   if (reflectivityData) {
@@ -67,9 +42,6 @@ export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemb
   let plot_coords = plot_data[1];
 
   let refl_data, total_grid_cells_r, plot_geom_r, plot_coords_r;
-
-  // mapbox token for basemap
-// let config = {mapboxAccessToken: "pk.eyJ1IjoiYnBldHprZSIsImEiOiJjbGtsY2I1cTAwNnR1M21wY3kxZnk3NG0xIn0.VBcAZDXsltnUxPWsj6TJPA"};
 
   // get list of forecast date/times at an interval of 5 mins
   let fcst_dates = get_fcst_date_range(selectedModelRun,5);

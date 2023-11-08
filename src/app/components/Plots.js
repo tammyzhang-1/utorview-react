@@ -1,4 +1,6 @@
 'use client'
+// directly renders map and nests line chart component in Charts
+// deals with syncing when user clicks on the map
 import Chart from './Chart.js'
 import dynamic from 'next/dynamic';
 import { useState } from 'react';

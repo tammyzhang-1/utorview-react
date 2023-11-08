@@ -1,5 +1,7 @@
 'use client'
-import { useState, memo } from 'react';
+// component that populates the user controls for the visualization.
+// passes selected values to Visualizations.
+import { useState } from 'react';
 import Select from './Select.js'
 import Visualizations from './Visualizations.js'
 
@@ -32,21 +34,6 @@ export default function Controls({ modelDates, modelDateValues }) {
 
     const [selectedOverlay, setSelectedOverlay] = useState(false);
     const [selectedOpacity, setSelectedOpacity] = useState(10);
-
-    // const [selectedOptions, setSelectedOptions] = useState({
-    //     modelRun: 0,
-    //     ensembleMember: 0,
-    //     forecastHour: 0,
-    //     reflectivityCheck: false,
-    //     opacityRange: 10
-    // })
-
-    // function handleOptionsChange(e) {
-    //     setSelectedOptions({
-    //       ...selectedOptions,
-    //       [e.target.name]: e.target.value
-    //     });
-    // }
    
     return (
         <div id="container">

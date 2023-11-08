@@ -1,4 +1,6 @@
 'use client'
+// component for line plot
+// calculates + renders data from selected point on map
 import * as d3 from 'd3';
 import useSWR from 'swr'
 import dynamic from 'next/dynamic';
