@@ -2,6 +2,7 @@
 import Controls from './components/Controls.js'
 import useSWR from 'swr'
 import * as d3 from 'd3';
+import { useMemo } from 'react';
 
 // font imports
 import { Poppins } from 'next/font/google'
@@ -21,10 +22,13 @@ export default function App() {
   console.log("render occurred! App")
   const { data, error, isLoading } = useSWR(url, fetcher, {revalidateOnFocus: false});
 
+  const dateList = useMemo(() => {
+    if (data) return formatDates(data);
+    else return {};
+  }, [data])
+  
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
-
-  let dateList = formatDates(data);
  
   return (
       <main className={poppins.className}>

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import Select from './Select.js'
 import Visualizations from './Visualizations.js'
 
@@ -88,7 +88,6 @@ export default function Controls({ modelDates, modelDateValues }) {
                 </label>
             </div>
             <Visualizations 
-                times={modelDates}
                 selectedModelRun={selectedModelRun}
                 selectedEnsemble={selectedEnsemble}
                 selectedForecast={selectedForecast}

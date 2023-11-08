@@ -34,13 +34,13 @@ body, main, #container, #viz-outer-container {
 #map {
   box-sizing: border-box;
   height: 100%;
-  /* width: 50%; */
+  width: 50%;
 }
 
 #chart {
   box-sizing: border-box;
   height: 100%;
-  /* width: 50%; */
+  width: 50%;
   padding-bottom: 1em;
 }
 

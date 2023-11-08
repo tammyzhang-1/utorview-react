@@ -1,11 +1,9 @@
 'use client'
-import dynamic from 'next/dynamic';
 import proj4 from 'proj4';
 import * as d3 from 'd3';
 import Plots from './Plots.js'
-import { useState } from 'react';
+import { useMemo } from 'react';
 
-// const Plot = dynamic(()=> {return import ("react-plotly.js")}, {ssr: false})
 
 // predefined resolution settings
 let wofs_x_length = 300;
@@ -18,18 +16,45 @@ let orig_proj = "WGS84";
 let base_proj = "+proj=lcc +lat_0=34.321392 +lon_0=-98.0134 +lat_1=30 +lat_2=60 +a=6370000 +b=6370000 +ellps=WGS84";
 let base_transformer = proj4(base_proj, orig_proj);
 
-export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemble, selectedForecast, json}) {
+export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemble, selectedForecast, json, reflectivityData, opacity}) {
+  console.log("-----------------RENDER OCCURRED! Geometry")
+
   let base_coord = base_transformer.inverse(json['fm_' + selectedForecast]['se_coords']);
   let wofs_proj = derive_new_proj(base_transformer, base_coord);
   let transformer = proj4(wofs_proj, orig_proj);
   let coord = transformer.inverse(json['fm_' + selectedForecast]['se_coords']);
 
+  // const plot_d = useMemo(() => {
+  //   console.log(selectedEnsemble)
+  //   console.log("PLOT_D JUST LOADED")
+  //   return build_data_object(transformer,selectedEnsemble,0,msg_file_len,json)
+  //   }, 
+  //   [selectedEnsemble])
+  let plot_d = build_data_object(transformer,selectedEnsemble,0,msg_file_len,json)
+
+  // console.log(reflectivityData)
+  // const plot_r = useMemo(() => {
+  //   if (reflectivityData) {
+  //     console.log("PLOT_R JUST LOADED")
+  //     return build_data_object(transformer,selectedEnsemble,0, msg_file_len, reflectivityData)
+  //   } else {
+  //     console.log("PLOT_R NOT LOAED")
+  //     return {};
+  //   }},
+  //   [selectedEnsemble])
+
+
   let spaghetti_traces = [];
   let cell_i, cell_j;
 
-  let plot_d = {};
+  // let plot_d = {};
   // run a function that creates FeatureCollection for each timestamp of json and saves these to plot_d
-  build_data_object(transformer,selectedEnsemble,0,msg_file_len,json,plot_d);
+  // build_data_object(transformer,selectedEnsemble,0,msg_file_len,json);
+
+  let plot_r = {}
+  if (reflectivityData) {
+    plot_r = build_data_object(transformer,selectedEnsemble,0, msg_file_len, reflectivityData, plot_r)
+  }
 
   // more grid info describing the data
   let total_grid_cells = json['fm_' + selectedForecast]['MEM_' + selectedEnsemble]['rows'].length;
@@ -40,10 +65,6 @@ export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemb
   let plot_data = plot_d[selectedForecast + '_' + selectedEnsemble];
   let plot_geom = plot_data[0];
   let plot_coords = plot_data[1];
-
-  // console.log(plot_data)
-  // console.log(plot_geom)
-  // console.log(plot_coords)
 
   let refl_data, total_grid_cells_r, plot_geom_r, plot_coords_r;
 
@@ -71,9 +92,35 @@ export default function Geometry({msg_file_len, selectedModelRun, selectedEnsemb
   }; // referring to FeatureCollection generated from the data
 
   // creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
-  // let all_traces = [map_data, init_trace, wofs_domain, cell_domain].flat();
-  let all_traces = [map_data].flat() //turn into state?
+  let all_traces = [map_data].flat();
 
+  if (reflectivityData) {
+    let trace_r = select_trace(reflectivityData, plot_r, selectedForecast, selectedEnsemble)
+    plot_geom_r = trace_r[1][0]
+    plot_coords_r = trace_r[1][1]
+    let trace_values_r = trace_r[0]
+    total_grid_cells_r = trace_values_r['rows'].length
+
+    let refl_alpha = opacity/100;
+
+    refl_data = {
+      type: "choroplethmapbox",
+      locations: d3.range(total_grid_cells_r),
+      marker: {
+        line: {width: 0},
+        opacity: refl_alpha
+      },
+      z: trace_values_r['values'],
+      zmin: 0, zmax: 80,
+      // colorbar: {x: 0.5, y:-0.9, orientation: 'h', thickness: 15, len: 1, ypad: 0},
+      colorbar: { orientation: 'h', thickness: 15, y: -0.1, len: 1},
+      hoverinfo: "skip",
+      customdata: plot_coords_r,
+      colorscale: 'Jet',
+      geojson: plot_geom_r
+    };
+    all_traces = [map_data, refl_data].flat();
+  }
   // map object layers + settings
   let layout = {
     title: {text: get_title_timestamp(selectedModelRun, selectedForecast), x: 0.05, font: {size: 22}},
@@ -124,12 +171,14 @@ function derive_new_proj(base_transformer, coord) {
   return proj
 }
 
-function build_data_object(transformer, selectedEnsemble, start,end,data,obj_dict_out) {
-  console.log("built_data_object() called")
-
+function build_data_object(transformer, selectedEnsemble, start,end,data) {
+  console.log("-------------------build_data_object() called")
   // Returns: None. for each timestamp of the data, creates a FeatureCollection where each data coordinate is represented by a list of cornerpoints that center it
   // and saves it to obj_dict_out.
   // Parameters on initialization: build_data_object(0,1,json,plot_d);
+  console.log(data)
+
+  let obj_dict_out = {};
 
   // reprojecting the coordinates in the data
   let coord = transformer.inverse(data['fm_0']['se_coords'])
@@ -144,6 +193,7 @@ function build_data_object(transformer, selectedEnsemble, start,end,data,obj_dic
     let plot_data = create_geom_object(transformer, subset["rows"], subset["columns"], lon_array_m, lat_array_m)
     obj_dict_out[minutes + "_" + selectedEnsemble] = plot_data
   }
+  return obj_dict_out;
 }
 
 function create_coord_array(coord, len, resolution) {
@@ -245,4 +295,15 @@ function get_title_timestamp(selectedModelRun, selectedForecast) {
   var date_string = new Date(time_ms + forecast_mins_in_ms).toUTCString()
 
   return "Probability of Tornado: " + date_string
+}
+
+function select_trace(data, geom, selectedForecast, selectedEnsemble) {
+  console.log("select_trace() called")
+  // seems like this enables selecting the correct data for the given chosen grid cell so that 
+  // it syncs on the map and spaghetti plot ?
+  
+  let p = data["fm_" + String(parseInt(selectedForecast))]['MEM_' + selectedEnsemble]
+  let geo = geom[String(parseInt(selectedForecast)) + "_" + selectedEnsemble]
+  console.log([p,geo])
+  return [p, geo]
 }

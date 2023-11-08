@@ -6,15 +6,15 @@ import useSWR from 'swr'
 import {decodeAsync} from '@msgpack/msgpack'
 
 
-export default function Visualizations({times, selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
+export default function Visualizations({selectedModelRun, selectedEnsemble, selectedForecast, selectedOverlay, selectedOpacity}) {
     console.log("render occurred! Visualizations")
 
     let fileStrings = get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"ML_PREDICTED_TOR")
-    
     let msg_file_len = fileStrings.length;
-    let test_url = fileStrings.slice(0,msg_file_len)
+    let reflFileStrings = selectedOverlay ? get_ens_file_strings(selectedModelRun, "wofs_sparse_prob_",5,"COMPOSITE_REFL_10CM") : [];
 
-    const { data, error, isLoading } = useSWR([test_url, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,msg_file_len], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
+    const { data, error, isLoading } = useSWR([fileStrings, "wofs_sparse_prob_","ML_PREDICTED_TOR",0,msg_file_len], ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
+    const { data: reflectivity, error: reflectionError, isLoading: reflectionIsLoading} = useSWR(selectedOverlay ? [reflFileStrings, "wofs_sparse_prob_","COMPOSITE_REFL_10CM",0,msg_file_len] : null, ([url, file_prefix, variable, start, end]) => load_data_parallel(url, file_prefix, variable, start, end), {revalidateOnFocus: false})
 
     if (error) {
         return (
@@ -25,9 +25,10 @@ export default function Visualizations({times, selectedModelRun, selectedEnsembl
             <div>Loading data...</div>
         )
     } 
+
     return (
         <div id="viz-container">
-            <Geometry msg_file_len={msg_file_len} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data}/>
+            <Geometry msg_file_len={msg_file_len} selectedModelRun={selectedModelRun} selectedEnsemble={selectedEnsemble} selectedForecast={selectedForecast} json={data} reflectivityData={reflectivity} opacity={selectedOpacity}/>
         </div>
     );
 }

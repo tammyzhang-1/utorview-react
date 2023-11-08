@@ -26,7 +26,6 @@ export default function Chart({ selectedPoint, fcst_dates, msg_file_len, domain,
         lat: domain[1],
     };
 
-
     const { data, error, isLoading } = useSWR(selectedPoint.length != 0 ? ([selectedPoint[0], selectedPoint[1], msg_file_len, json]) : null, ([i, j, msg_file_len, json]) => spaghetti(i, j, msg_file_len, json), {revalidateOnFocus: false})
     if (data) {
         let spaghetti_data = data;
@@ -72,9 +71,9 @@ export default function Chart({ selectedPoint, fcst_dates, msg_file_len, domain,
 
     return (
         <div id="chart">
-            <div id="chart-instruction">
+            {!data && (<div id="chart-instruction">
                 Click on a probability grid cell to display a spaghetti plot of all ensemble members.
-            </div>
+            </div>)}
             <Plot data={all_traces} layout={layout} config={config}/>
         </div>
     );
